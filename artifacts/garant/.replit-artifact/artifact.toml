@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "GARANT"
+description = "A Kuwait-focused escrow-style payment protection MVP for online sellers and buyers, with merchant tools, simulated checkout, order tracking, shipping updates, and dispute handling."
+version = "1.0.0"
+id = "artifacts/garant"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23804
+
+[services.development]
+run = "pnpm --filter @workspace/garant run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/garant", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/garant/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23804"
+BASE_PATH = "/"

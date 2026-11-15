@@ -1,4 +1,5 @@
 import app from "./app";
+import { releaseExpiredOrders } from "./lib/garant";
 import { logger } from "./lib/logger";
 
 const rawPort = process.env["PORT"];
@@ -22,4 +23,14 @@ app.listen(port, (err) => {
   }
 
   logger.info({ port }, "Server listening");
+});
+
+const releaseCheck = setInterval(() => {
+  void releaseExpiredOrders().catch((error: unknown) => {
+    logger.error({ error }, "Automatic simulated payment release failed");
+  });
+}, 60_000);
+releaseCheck.unref();
+void releaseExpiredOrders().catch((error: unknown) => {
+  logger.error({ error }, "Initial simulated payment release check failed");
 });

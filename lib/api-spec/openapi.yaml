@@ -3,20 +3,21 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: GARANT escrow-style payment protection MVP API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
+  - name: merchant
+  - name: public-orders
+  - name: admin
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +25,503 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /garant/merchant/profile:
+    get:
+      operationId: getMerchantProfile
+      tags: [merchant]
+      summary: Get the signed-in merchant profile
+      responses:
+        "200":
+          description: Merchant profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MerchantProfile"
+    post:
+      operationId: saveMerchantProfile
+      tags: [merchant]
+      summary: Create or update merchant profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MerchantProfileInput"
+      responses:
+        "200":
+          description: Saved merchant profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MerchantProfile"
+  /garant/merchant/overview:
+    get:
+      operationId: getMerchantOverview
+      tags: [merchant]
+      summary: Get merchant dashboard totals and recent orders
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MerchantOverview"
+  /garant/merchant/orders:
+    get:
+      operationId: listMerchantOrders
+      tags: [merchant]
+      summary: List signed-in merchant orders
+      responses:
+        "200":
+          description: Orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+  /garant/merchant/payment-links:
+    post:
+      operationId: createPaymentLink
+      tags: [merchant]
+      summary: Create a payment link
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentLinkInput"
+      responses:
+        "201":
+          description: Payment link created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+  /garant/merchant/orders/{orderId}/shipping:
+    post:
+      operationId: updateShipping
+      tags: [merchant]
+      summary: Add shipment details and mark an order shipped
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShippingInput"
+      responses:
+        "200":
+          description: Updated order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+  /garant/merchant/orders/{orderId}/delivered:
+    post:
+      operationId: markOrderDelivered
+      tags: [merchant]
+      summary: Mark a shipped order as delivered
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+  /garant/merchant/disputes/{disputeId}/response:
+    post:
+      operationId: respondToDispute
+      tags: [merchant]
+      summary: Submit a merchant response to a dispute
+      parameters:
+        - in: path
+          name: disputeId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MerchantDisputeResponseInput"
+      responses:
+        "200":
+          description: Updated dispute
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dispute"
+  /garant/public/orders/{token}:
+    get:
+      operationId: getPublicOrder
+      tags: [public-orders]
+      summary: View an order through its public payment link
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Public order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+  /garant/public/orders/{token}/pay:
+    post:
+      operationId: simulatePayment
+      tags: [public-orders]
+      summary: Simulate buyer checkout and hold payment
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BuyerPaymentInput"
+      responses:
+        "200":
+          description: Payment simulated and held
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+  /garant/public/orders/{token}/verify:
+    post:
+      operationId: verifyBuyerOtp
+      tags: [public-orders]
+      summary: Verify simulated one-time passcode
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OtpInput"
+      responses:
+        "200":
+          description: Passcode verified
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActionResult"
+  /garant/public/orders/{token}/confirm:
+    post:
+      operationId: confirmOrderReceived
+      tags: [public-orders]
+      summary: Confirm receipt and release simulated payment
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OtpInput"
+      responses:
+        "200":
+          description: Order completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+  /garant/public/orders/{token}/disputes:
+    post:
+      operationId: submitDispute
+      tags: [public-orders]
+      summary: File a buyer complaint and freeze payment
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DisputeInput"
+      responses:
+        "201":
+          description: Dispute submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dispute"
+  /garant/admin/overview:
+    get:
+      operationId: getAdminOverview
+      tags: [admin]
+      summary: Get administrator dashboard totals
+      responses:
+        "200":
+          description: Admin summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminOverview"
+  /garant/admin/orders:
+    get:
+      operationId: listAdminOrders
+      tags: [admin]
+      summary: List all orders for administrators
+      responses:
+        "200":
+          description: Orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+  /garant/admin/disputes:
+    get:
+      operationId: listAdminDisputes
+      tags: [admin]
+      summary: List all disputes for administrators
+      responses:
+        "200":
+          description: Disputes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Dispute"
+  /garant/admin/disputes/{disputeId}/decision:
+    post:
+      operationId: decideDispute
+      tags: [admin]
+      summary: Make a simulated financial dispute decision
+      parameters:
+        - in: path
+          name: disputeId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DisputeDecisionInput"
+      responses:
+        "200":
+          description: Decision applied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dispute"
+  /garant/merchant/disputes:
+    get:
+      operationId: listMerchantDisputes
+      tags: [merchant]
+      summary: List disputes for the signed-in merchant
+      responses:
+        "200":
+          description: Disputes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Dispute"
 components:
   schemas:
     HealthStatus:
       type: object
       properties:
+        status: { type: string }
+      required: [status]
+    MerchantProfileInput:
+      type: object
+      properties:
+        fullName: { type: string, minLength: 1 }
+        storeName: { type: string, minLength: 1 }
+        phoneNumber: { type: string, minLength: 5 }
+      required: [fullName, storeName, phoneNumber]
+    MerchantProfile:
+      type: object
+      properties:
+        id: { type: integer }
+        clerkUserId: { type: string }
+        fullName: { type: string }
+        storeName: { type: string }
+        email: { type: string }
+        phoneNumber: { type: string }
+        role: { type: string, enum: [merchant, admin] }
+        createdAt: { type: string, format: date-time }
+      required: [id, clerkUserId, fullName, storeName, email, phoneNumber, role, createdAt]
+    PaymentLinkInput:
+      type: object
+      properties:
+        productName: { type: string, minLength: 1 }
+        description: { type: string }
+        imageUrl: { type: ["string", "null"] }
+        productPrice: { type: number, exclusiveMinimum: 0 }
+        deliveryFee: { type: number, minimum: 0 }
+        expectedDeliveryDate: { type: string, format: date }
+        notes: { type: ["string", "null"] }
+      required: [productName, description, productPrice, deliveryFee, expectedDeliveryDate]
+    ShippingInput:
+      type: object
+      properties:
+        carrier: { type: string, minLength: 1 }
+        trackingNumber: { type: string, minLength: 1 }
+        trackingUrl: { type: string, format: uri }
+      required: [carrier, trackingNumber, trackingUrl]
+    BuyerPaymentInput:
+      type: object
+      properties:
+        fullName: { type: string, minLength: 1 }
+        phoneNumber: { type: string, minLength: 5 }
+        deliveryAddress: { type: string, minLength: 5 }
+        paymentMethod: { type: string, enum: [KNET, CARD] }
+      required: [fullName, phoneNumber, deliveryAddress, paymentMethod]
+    OtpInput:
+      type: object
+      properties:
+        code: { type: string, minLength: 4, maxLength: 8 }
+      required: [code]
+    DisputeInput:
+      type: object
+      properties:
+        reason:
+          type: string
+          enum: [DAMAGED_PRODUCT, WRONG_ITEM, NOT_AS_DESCRIBED, NOT_RECEIVED]
+        description: { type: string, minLength: 10 }
+        evidenceUrls:
+          type: array
+          items: { type: string }
+      required: [reason, description]
+    DisputeDecisionInput:
+      type: object
+      properties:
+        decision:
+          type: string
+          enum: [FULL_REFUND, PARTIAL_REFUND, RELEASE_TO_MERCHANT]
+        refundAmount: { type: ["number", "null"], minimum: 0 }
+        adminNote: { type: ["string", "null"] }
+      required: [decision]
+    MerchantDisputeResponseInput:
+      type: object
+      properties:
+        response: { type: string, minLength: 5 }
+      required: [response]
+    Order:
+      type: object
+      properties:
+        id: { type: integer }
+        token: { type: string }
+        merchantId: { type: integer }
+        merchantName: { type: string }
+        storeName: { type: string }
+        merchantPhone: { type: string }
+        productName: { type: string }
+        description: { type: string }
+        imageUrl: { type: ["string", "null"] }
+        productPrice: { type: number }
+        deliveryFee: { type: number }
+        totalAmount: { type: number }
+        expectedDeliveryDate: { type: string, format: date }
+        notes: { type: ["string", "null"] }
+        buyerName: { type: ["string", "null"] }
+        buyerPhone: { type: ["string", "null"] }
+        deliveryAddress: { type: ["string", "null"] }
+        paymentMethod: { type: ["string", "null"] }
         status:
           type: string
-      required:
-        - status
-
+          enum: [CREATED, "PAID & HELD", SHIPPED, DELIVERED, COMPLETED, DISPUTED]
+        carrier: { type: ["string", "null"] }
+        trackingNumber: { type: ["string", "null"] }
+        trackingUrl: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+        deliveredAt: { type: ["string", "null"], format: date-time }
+      required: [id, token, merchantId, merchantName, storeName, merchantPhone, productName, description, productPrice, deliveryFee, totalAmount, expectedDeliveryDate, status, createdAt]
+    Dispute:
+      type: object
+      properties:
+        id: { type: integer }
+        orderId: { type: integer }
+        orderToken: { type: string }
+        merchantName: { type: string }
+        productName: { type: string }
+        buyerName: { type: ["string", "null"] }
+        reason:
+          type: string
+          enum: [DAMAGED_PRODUCT, WRONG_ITEM, NOT_AS_DESCRIBED, NOT_RECEIVED]
+        description: { type: string }
+        evidenceUrls:
+          type: array
+          items: { type: string }
+        status: { type: string }
+        createdAt: { type: string, format: date-time }
+        adminNote: { type: ["string", "null"] }
+        merchantResponse: { type: ["string", "null"] }
+      required: [id, orderId, orderToken, merchantName, productName, reason, description, evidenceUrls, status, createdAt]
+    MerchantOverview:
+      type: object
+      properties:
+        totalSales: { type: number }
+        totalOrders: { type: integer }
+        pendingPayments: { type: number }
+        completedOrders: { type: integer }
+        disputedOrders: { type: integer }
+        weeklySales:
+          type: array
+          items:
+            type: object
+            properties:
+              day: { type: string }
+              amount: { type: number }
+            required: [day, amount]
+        recentOrders:
+          type: array
+          items: { $ref: "#/components/schemas/Order" }
+      required: [totalSales, totalOrders, pendingPayments, completedOrders, disputedOrders, weeklySales, recentOrders]
+    AdminOverview:
+      type: object
+      properties:
+        totalMerchants: { type: integer }
+        totalOrders: { type: integer }
+        transactionVolume: { type: number }
+        heldPayments: { type: number }
+        completedOrders: { type: integer }
+        openDisputes: { type: integer }
+      required: [totalMerchants, totalOrders, transactionVolume, heldPayments, completedOrders, openDisputes]
+    ActionResult:
+      type: object
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+      required: [success, message]

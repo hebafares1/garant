@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40" role="img" aria-label="GARANT">
+  <rect x="1" y="1" width="38" height="38" rx="11" fill="#7C3AED"/>
+  <path d="M20 8.5 30 12v7.1c0 6.5-4.2 10.7-10 13.2-5.8-2.5-10-6.7-10-13.2V12l10-3.5Z" fill="none" stroke="#fffefa" stroke-width="2.1" stroke-linejoin="round"/>
+  <path d="m15.8 20.3 2.9 2.9 5.8-6" fill="none" stroke="#fffefa" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="48" y="26" fill="#A855F7" font-family="-apple-system, BlinkMacSystemFont, SF Pro Display, Segoe UI, sans-serif" font-size="19" font-weight="800" letter-spacing="-.6">GARANT</text>
+</svg>
