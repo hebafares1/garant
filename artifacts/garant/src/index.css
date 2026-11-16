@@ -486,6 +486,13 @@ html[dir='rtl'] input[type='number'], html[dir='rtl'] input[type='date'], html[d
   filter: url("#garant-neon-icon");
 }
 
+/* Keep the brand mark crisp instead of applying the neon tubing filter. */
+svg.garant-logo-mark {
+  color: #A855F7;
+  filter: none;
+  stroke-width: 2.2;
+}
+
 /* Crisp neon highlight on interactive buttons; keep it a defined edge, not a glow. */
 button:not(:disabled),
 [role="button"]:not([aria-disabled="true"]),

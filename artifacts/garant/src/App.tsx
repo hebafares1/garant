@@ -338,7 +338,7 @@ function StatusPill({ status }: { status: string }) {
   return <span className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wide ${style}`}>{lang === 'ar' ? arabicCopy[status] || status : status}</span>;
 }
 function Money({ children }: { children: ReactNode }) { return <span className="mono-font">{children}</span>; }
-function Logo({ inverse = false }: { inverse?: boolean }) { return <Link href="/" className={`flex items-center gap-2.5 font-bold tracking-tight ${inverse ? 'text-sidebar-foreground' : 'text-foreground'}`}><span className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/75 bg-transparent text-primary"><ShieldCheck className="h-5 w-5" /></span><span className="text-[19px]">GARANT<span className="ml-1 text-primary">.</span></span></Link>; }
+function Logo({ inverse = false }: { inverse?: boolean }) { return <Link href="/" className={`flex items-center gap-2.5 font-bold tracking-tight ${inverse ? 'text-sidebar-foreground' : 'text-foreground'}`}><span className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/75 bg-transparent text-primary"><ShieldCheck className="garant-logo-mark h-5 w-5" /></span><span className="text-[19px]">GARANT<span className="ml-1 text-primary">.</span></span></Link>; }
 
 function Layout({ children }: { children: ReactNode }) {
   const [path] = useLocation(); const { lang } = useLocale(); const { signOut } = useClerk(); const { user } = useUser();
