@@ -255,7 +255,7 @@ function applyArabicCopy(lang: Lang) {
 const fmt = (n: number) => `${Number(n || 0).toFixed(3)} KWD`;
 const date = (d?: string | null) => d ? new Intl.DateTimeFormat(document.documentElement.lang === 'ar' ? 'ar-KW' : 'en-KW', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(d)) : '—';
 const field = 'w-full rounded-xl border border-border bg-background px-3.5 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15';
-const button = 'inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50';
+const button = 'garant-button inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50';
 function Primary({ children, ...props }: ButtonHTMLAttributes<HTMLButtonElement>) { return <button className={`${button} bg-primary text-primary-foreground hover:brightness-95`} {...props}>{children}</button>; }
 function Soft({ children, ...props }: ButtonHTMLAttributes<HTMLButtonElement>) { return <button className={`${button} border border-border bg-card text-foreground hover:bg-muted`} {...props}>{children}</button>; }
 function PageTitle({ eyebrow, title, sub, action }: { eyebrow?: string; title: string; sub?: string; action?: ReactNode }) {
