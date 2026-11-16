@@ -23,7 +23,7 @@ import {
 import type { Order, Dispute } from '@workspace/api-client-react';
 import { DisputeInputReason, DisputeDecisionInputDecision } from '@workspace/api-client-react';
 import {
-  Activity, ArrowRight, Bell, CalendarDays, Check, CheckCircle2, Clipboard, Clock3, ExternalLink, Eye, FileImage,
+  Activity, ArrowRight, Bell, CalendarDays, Check, CheckCircle2, Clipboard, Clock3, CreditCard, ExternalLink, Eye, FileImage,
   Headphones, Home as HomeIcon, ImagePlus, Link2, LockKeyhole, LogOut, Menu, Package,
   Plus, Send, Settings, Shield, ShieldCheck, Truck, WalletCards, X, AlertCircle,
 } from 'lucide-react';
@@ -414,13 +414,61 @@ function MerchantGate({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+function PaymentPreview() {
+  return <div className="relative mx-auto w-full max-w-[550px] rise">
+    <div className="absolute -right-8 -top-7 h-44 w-44 rounded-full bg-accent/60 blur-3xl" />
+    <div className="relative rounded-[30px] border border-white/10 bg-[#101832]/95 p-4 shadow-[0_30px_90px_-40px_rgba(25,41,37,.55)] sm:p-6">
+      <div className="mb-4 flex items-center justify-between gap-3 px-1">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/60 text-primary"><ShieldCheck className="h-5 w-5" /></span>
+          <div><p className="text-sm font-bold tracking-wide">GARANT</p><p className="text-[10px] text-muted-foreground">Buyer checkout</p></div>
+        </div>
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1.5 text-[10px] font-semibold text-[#D8B4FE]"><LockKeyhole className="h-3 w-3" /> Secure preview</span>
+      </div>
+
+      <div className="rounded-2xl border border-white/10 bg-[#080D24] p-4 sm:p-5">
+        <div className="flex items-start justify-between gap-3 border-b border-white/10 pb-4">
+          <div><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted-foreground">Order total</p><p className="mt-1.5 text-3xl font-bold tracking-tight sm:text-4xl">24.500 <span className="text-base font-semibold text-muted-foreground">KWD</span></p></div>
+          <span className="rounded-md border border-white/10 px-2 py-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">Demo</span>
+        </div>
+
+        <div className="flex items-center justify-between gap-3 py-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#171F3A] text-primary"><Package className="h-5 w-5" /></span>
+            <div className="min-w-0"><p className="truncate text-sm font-semibold">Custom order</p><p className="mt-1 text-xs text-muted-foreground">Payment link checkout</p></div>
+          </div>
+          <span className="shrink-0 text-sm font-semibold">24.500 KWD</span>
+        </div>
+
+        <div className="border-t border-white/10 pt-4">
+          <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[.14em] text-muted-foreground">Payment method</p>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="flex h-11 items-center justify-center gap-2 rounded-xl border border-primary/70 bg-primary/10 text-xs font-bold text-white"><WalletCards className="h-4 w-4 text-[#D8B4FE]" /> KNET</div>
+            <div className="flex h-11 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[.03] text-xs font-semibold text-foreground/80"><CreditCard className="h-4 w-4" /> Card</div>
+          </div>
+        </div>
+
+        <div className="mt-4 flex h-11 items-center justify-center gap-2 rounded-xl bg-primary text-xs font-bold text-white shadow-[0_8px_26px_-12px_rgba(168,85,247,.8)]">
+          <LockKeyhole className="h-4 w-4" /> Continue to secure payment
+        </div>
+        <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[10px] leading-4 text-muted-foreground"><ShieldCheck className="h-3.5 w-3.5 shrink-0 text-primary" /> Your payment stays protected until delivery</p>
+      </div>
+
+      <div className="mt-4 flex items-center gap-3 rounded-2xl border border-white/10 bg-[#080D24]/90 p-3.5">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary"><CheckCircle2 className="h-5 w-5" /></span>
+        <div><p className="text-xs font-semibold">Funds held securely</p><p className="mt-1 text-[10px] text-muted-foreground">Released after the buyer confirms delivery</p></div>
+      </div>
+    </div>
+  </div>;
+}
+
 function Home() {
   const { lang } = useLocale();
   return <main className="min-h-[100dvh] overflow-hidden bg-background"><header className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-5 sm:px-5 sm:py-6"><Logo /><div className="flex min-w-0 items-center gap-1 sm:gap-2"><Link href="/sign-in" className={`${button} mobile-header-link text-muted-foreground`}>Sign in</Link><Link href="/sign-up" className={`${button} mobile-header-link bg-primary text-primary-foreground`}>Create account <ArrowRight className="h-4 w-4" /></Link></div></header>
     <Velaris className="mx-auto max-w-7xl" height="auto" bg="#080D24" colors={GARANT_VELARIS_COLORS} speed={0.75} grain={0.14}>
     <section className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 pb-20 pt-12 md:grid-cols-[1.02fr_.98fr] md:pb-28 md:pt-20">
       <div className="rise relative z-10"><div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary"><ShieldCheck className="h-4 w-4" /> Built for Kuwait's social sellers</div><h1 aria-label={t('welcome', lang)} className="display-font max-w-[680px] text-[48px] font-extrabold leading-[1.05] tracking-[-.045em] sm:text-[68px]"><TypewriterLastWord text={t('welcome', lang)} /></h1><p className="mt-6 max-w-lg text-base leading-7 text-muted-foreground sm:text-lg">Share one trusted payment link on Instagram or WhatsApp. Buyers pay and follow delivery without creating an account.</p><div className="mt-8 flex flex-wrap gap-3"><Link href="/sign-up" className={`${button} bg-primary px-5 py-3 text-primary-foreground`}>Start selling with GARANT <ArrowRight className="h-4 w-4" /></Link><Link href="/sign-in" className={`${button} border border-border bg-card px-5 py-3`}>Merchant sign in</Link></div><div className="mt-7 flex items-center gap-3 text-xs text-muted-foreground"><div className="flex -space-x-2"><span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-[#d6b2a0] text-[9px] font-bold text-[#3b2823]">S</span><span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-[#ddc981] text-[9px] font-bold text-[#453c20]">A</span><span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-[#92b8a0] text-[9px] font-bold text-[#1f3829]">M</span></div><span>For independent shops, studios & sellers</span></div></div>
-      <div className="relative mx-auto w-full max-w-[550px] rise"><div className="absolute -right-8 -top-7 h-44 w-44 rounded-full bg-accent/60 blur-3xl" /><div className="relative overflow-hidden rounded-[30px] border border-border bg-[#e9e5d9] p-5 shadow-[0_30px_90px_-40px_rgba(25,41,37,.35)] sm:p-8"><div className="absolute right-5 top-5 rotate-6 rounded-xl bg-[#193c31] px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-[#e5f1d8]">Protected sale</div><div className="flex h-[220px] items-center justify-center rounded-2xl bg-[#d4d0c4] sm:h-[280px]"><div className="relative flex h-[185px] w-[230px] rotate-[-5deg] items-center justify-center rounded-[24px] border border-white/70 bg-gradient-to-br from-[#c7b59b] via-[#ebe1cf] to-[#b4aa98] shadow-xl sm:h-[225px] sm:w-[300px]"><div className="absolute left-[-10px] top-8 h-12 w-12 rounded-full bg-[#f1e9d8]/80" /><div className="absolute right-[-10px] top-14 h-16 w-16 rounded-full bg-[#f1e9d8]/70" /><div className="absolute bottom-6 left-10 h-20 w-20 rounded-full bg-[#aebaa7]/90" /><div className="h-24 w-24 rotate-12 rounded-[26px] border border-white/80 bg-[#f5f0e7]/80 shadow-md sm:h-32 sm:w-32"><div className="mx-auto mt-6 h-12 w-12 rounded-full bg-[#e2d8c7] sm:mt-8 sm:h-16 sm:w-16" /></div><span className="absolute bottom-3 right-4 text-[9px] font-bold tracking-[.15em] text-[#596057]">STUDIO OBJECT Nº 04</span></div></div><div className="flex items-center justify-between px-1 pt-5"><div><p className="text-xs font-bold uppercase tracking-[.15em] text-[#5c655b]">Order protection</p><h3 className="display-font mt-1 text-xl font-bold text-[#192923]">The trusted middle</h3></div><div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground"><ShieldCheck className="h-5 w-5" /></div></div></div><div className="absolute -bottom-6 -left-6 rounded-2xl border border-border bg-card p-4 shadow-lg sm:-left-10"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary"><LockKeyhole className="h-4 w-4" /></span><div><p className="text-xs font-bold">Payment held securely</p><p className="mt-1 text-[10px] text-muted-foreground">Until your buyer receives it</p></div><Check className="ml-4 h-4 w-4 text-primary" /></div></div></div>
+      <PaymentPreview />
     </section>
     </Velaris>
     <section className="border-y border-border bg-card/50"><div className="mx-auto grid max-w-7xl gap-8 px-5 py-9 sm:grid-cols-3"><div className="flex gap-3"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"><Link2 className="h-5 w-5" /></span><div><b className="text-sm">Share one simple link</b><p className="mt-1 text-xs leading-5 text-muted-foreground">Drop it into your next Instagram story or WhatsApp chat.</p></div></div><div className="flex gap-3"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground"><WalletCards className="h-5 w-5" /></span><div><b className="text-sm">Pay with KNET or card</b><p className="mt-1 text-xs leading-5 text-muted-foreground">A familiar, account-free checkout for your buyer.</p></div></div><div className="flex gap-3"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"><ShieldCheck className="h-5 w-5" /></span><div><b className="text-sm">Release after delivery</b><p className="mt-1 text-xs leading-5 text-muted-foreground">Funds stay protected while the order is on its way.</p></div></div></div></section>
