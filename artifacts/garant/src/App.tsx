@@ -3,8 +3,12 @@ import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/reac
 import { ClerkProvider, SignIn, SignUp, Show, useClerk, useUser } from '@clerk/react';
 import { publishableKeyFromHost } from '@clerk/react/internal';
 import { shadcn } from '@clerk/themes';
+import { format, isValid, parse } from 'date-fns';
+import { enUS } from 'date-fns/locale';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import NotFound from '@/pages/not-found';
 import {
   useHealthCheck, getHealthCheckQueryKey, useGetMerchantProfile, getGetMerchantProfileQueryKey,
@@ -19,7 +23,7 @@ import {
 import type { Order, Dispute } from '@workspace/api-client-react';
 import { DisputeInputReason, DisputeDecisionInputDecision } from '@workspace/api-client-react';
 import {
-  Activity, ArrowRight, Bell, Check, CheckCircle2, Clipboard, Clock3, ExternalLink, Eye, FileImage,
+  Activity, ArrowRight, Bell, CalendarDays, Check, CheckCircle2, Clipboard, Clock3, ExternalLink, Eye, FileImage,
   Headphones, Home as HomeIcon, ImagePlus, Link2, LockKeyhole, LogOut, Menu, Package,
   Plus, Send, Settings, Shield, ShieldCheck, Truck, WalletCards, X, AlertCircle,
 } from 'lucide-react';
@@ -254,6 +258,11 @@ function applyArabicCopy(lang: Lang) {
 }
 const fmt = (n: number) => `${Number(n || 0).toFixed(3)} KWD`;
 const date = (d?: string | null) => d ? new Intl.DateTimeFormat(document.documentElement.lang === 'ar' ? 'ar-KW' : 'en-KW', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(d)) : '—';
+function parseEnglishDate(value: string): Date | undefined {
+  if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) return undefined;
+  const parsed = parse(value, 'dd/MM/yyyy', new Date());
+  return isValid(parsed) && format(parsed, 'dd/MM/yyyy') === value ? parsed : undefined;
+}
 const field = 'w-full rounded-xl border border-border bg-background px-3.5 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15';
 const button = 'garant-button inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50';
 function TypewriterLastWord({ text }: { text: string }) {
@@ -480,10 +489,15 @@ function Orders() {
 function CreateLink() {
   const { lang } = useLocale();
   const create = useCreatePaymentLink(); const client = useQueryClient(); const [image, setImage] = useState(''); const [result, setResult] = useState<Order | null>(null); const [error, setError] = useState(''); const [copied, setCopied] = useState(false);
+  const [deliveryDateText, setDeliveryDateText] = useState('');
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const selectedDeliveryDate = parseEnglishDate(deliveryDateText);
   function onImage(file?: File) { if (!file) return; if (!file.type.startsWith('image/')) { setError('Choose an image file.'); return; } if (file.size > 4_000_000) { setError('Product photo must be under 4 MB.'); return; } setError(''); const reader = new FileReader(); reader.onload = () => setImage(String(reader.result)); reader.readAsDataURL(file); }
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault(); const f = new FormData(e.currentTarget); setError('');
-    create.mutate({ data: { productName: String(f.get('productName')), description: String(f.get('description')), imageUrl: image || null, productPrice: Number(f.get('price')), deliveryFee: Number(f.get('delivery')), expectedDeliveryDate: String(f.get('date')), notes: String(f.get('notes') || '') || null } }, {
+    const expectedDeliveryDate = parseEnglishDate(String(f.get('date') || ''));
+    if (!expectedDeliveryDate) { setError('Enter a valid expected delivery date in DD/MM/YYYY format.'); return; }
+    create.mutate({ data: { productName: String(f.get('productName')), description: String(f.get('description')), imageUrl: image || null, productPrice: Number(f.get('price')), deliveryFee: Number(f.get('delivery')), expectedDeliveryDate: format(expectedDeliveryDate, 'yyyy-MM-dd'), notes: String(f.get('notes') || '') || null } }, {
       onSuccess: order => { setResult(order); client.invalidateQueries({ queryKey: getListMerchantOrdersQueryKey() }); client.invalidateQueries({ queryKey: getGetMerchantOverviewQueryKey() }); navigator.clipboard?.writeText(`${window.location.origin}/pay/${order.token}`).catch(() => undefined); },
       onError: () => setError('The payment link could not be created. Check the details and try again.'),
     });
@@ -494,7 +508,7 @@ function CreateLink() {
       : <div className="grid gap-6 lg:grid-cols-[1fr_330px]"><form onSubmit={submit} className="rounded-3xl border border-border bg-card p-5 sm:p-8"><div className="mb-6 flex items-start gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><Package className="h-5 w-5" /></span><div><h2 className="font-bold">What are you selling?</h2><p className="mt-1 text-xs text-muted-foreground">Share just enough detail for a confident purchase.</p></div></div>
         <div className="grid gap-4 sm:grid-cols-2"><label className="text-xs font-semibold sm:col-span-2">Product name<input name="productName" required maxLength={120} className={`${field} mt-1.5`} placeholder="e.g. Linen weekend tote" /></label><label className="text-xs font-semibold sm:col-span-2">Description<textarea name="description" rows={3} className={`${field} mt-1.5 resize-y`} placeholder="A few details that make it special…" /></label>
         <label className="text-xs font-semibold">Price (KWD)<input name="price" type="number" min="0.001" step="0.001" required className={`${field} mt-1.5`} placeholder="24.500" /></label><label className="text-xs font-semibold">Delivery fee (KWD)<input name="delivery" type="number" min="0" step="0.001" required defaultValue="0" className={`${field} mt-1.5`} /></label>
-        <label className="text-xs font-semibold">Expected delivery<input name="date" type="date" required className={`${field} mt-1.5`} /></label><label className="text-xs font-semibold">Note for buyer<input name="notes" className={`${field} mt-1.5`} placeholder="Optional message" /></label>
+        <div><label htmlFor="expected-delivery-date" className="text-xs font-semibold">Expected delivery</label><div className="relative mt-1.5"><input id="expected-delivery-date" name="date" type="text" inputMode="numeric" autoComplete="off" required maxLength={10} pattern="[0-9]{2}/[0-9]{2}/[0-9]{4}" data-testid="input-expected-delivery-date" value={deliveryDateText} onChange={event => setDeliveryDateText(event.target.value)} className={`${field} pr-12`} placeholder="DD/MM/YYYY" /><Popover open={calendarOpen} onOpenChange={setCalendarOpen}><PopoverTrigger asChild><button type="button" aria-label="Choose expected delivery date" className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-muted-foreground hover:text-primary"><CalendarDays className="h-4 w-4" /></button></PopoverTrigger><PopoverContent align="start" className="w-auto p-0"><Calendar mode="single" locale={enUS} selected={selectedDeliveryDate} onSelect={day => { if (!day) return; setDeliveryDateText(format(day, 'dd/MM/yyyy')); setCalendarOpen(false); }} /></PopoverContent></Popover></div><p className="mt-1 text-[10px] text-muted-foreground">Use DD/MM/YYYY</p></div><label className="text-xs font-semibold">Note for buyer<input name="notes" className={`${field} mt-1.5`} placeholder="Optional message" /></label>
         <div className="sm:col-span-2"><span className="text-xs font-semibold">Product photo <span className="font-normal text-muted-foreground">Optional</span></span><label className="mt-1.5 flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-border bg-background p-3 hover:border-primary">{image ? <img src={image} alt="Product preview" className="h-16 w-16 rounded-lg object-cover" /> : <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-muted text-muted-foreground"><ImagePlus className="h-5 w-5" /></span>}<span><b className="block text-xs">{image ? 'Change photo' : 'Choose a product photo'}</b><small className="mt-1 block text-[10px] text-muted-foreground">Preview stays here; upload is demo-ready.</small></span><input type="file" accept="image/*" className="sr-only" onChange={e => onImage(e.target.files?.[0])} /></label></div></div>
         {error && <Notice kind="error">{error}</Notice>}<div className="mt-7 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-5"><p className="max-w-xs text-[11px] leading-5 text-muted-foreground"><LockKeyhole className="mr-1 inline h-3.5 w-3.5 text-primary" />Buyer funds are held until delivery is confirmed.</p><Primary type="submit" disabled={create.isPending}>{create.isPending ? 'Creating link…' : 'Create protected link'}<ArrowRight className="h-4 w-4" /></Primary></div></form>
         <aside className="h-fit rounded-3xl bg-[#203d34] p-6 text-white"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10"><ShieldCheck className="h-5 w-5 text-[#9ac9a7]" /></div><h3 className="display-font mt-5 text-xl font-bold">Buyer-first protection</h3><p className="mt-2 text-xs leading-5 text-white/65">A clear total and simple tracking makes it easier to say yes.</p><div className="my-5 border-t border-white/15" /><div className="space-y-3 text-xs text-white/80"><p className="flex gap-2"><Check className="h-4 w-4 text-[#9ac9a7]" />KNET and card payment simulations</p><p className="flex gap-2"><Check className="h-4 w-4 text-[#9ac9a7]" />No buyer account required</p><p className="flex gap-2"><Check className="h-4 w-4 text-[#9ac9a7]" />Delivery confirmation and complaints</p></div></aside></div>}
