@@ -267,7 +267,16 @@ const button = 'inline-flex items-center justify-center gap-2 rounded-xl px-4 py
 function Primary({ children, ...props }: ButtonHTMLAttributes<HTMLButtonElement>) { return <button className={`${button} bg-primary text-primary-foreground hover:brightness-95`} {...props}>{children}</button>; }
 function Soft({ children, ...props }: ButtonHTMLAttributes<HTMLButtonElement>) { return <button className={`${button} border border-border bg-card text-foreground hover:bg-muted`} {...props}>{children}</button>; }
 function PageTitle({ eyebrow, title, sub, action }: { eyebrow?: string; title: string; sub?: string; action?: ReactNode }) {
-  return <div className="mb-7 flex flex-wrap items-end justify-between gap-4"><div>{eyebrow && <p className="mb-2 text-[10px] font-bold uppercase tracking-[.2em] text-primary">{eyebrow}</p>}<h1 className="display-font text-3xl font-bold tracking-tight sm:text-[38px]">{title}</h1>{sub && <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{sub}</p>}</div>{action}</div>;
+  return <Velaris bg="#080D24" colors={GARANT_VELARIS_COLORS} speed={0.48} grain={0.1} height="auto" className="mb-7 rounded-2xl border border-white/10">
+    <div className="flex min-h-[112px] flex-wrap items-end justify-between gap-4 px-5 py-5 sm:px-7 sm:py-6">
+      <div className="text-[#F3F4FF]">
+        {eyebrow && <p className="mb-2 text-[10px] font-bold uppercase tracking-[.2em] text-[#C4B5FD]">{eyebrow}</p>}
+        <h1 className="display-font text-3xl font-bold tracking-tight text-[#F3F4FF] sm:text-[38px]">{title}</h1>
+        {sub && <p className="mt-2 max-w-2xl text-sm text-white/70">{sub}</p>}
+      </div>
+      {action}
+    </div>
+  </Velaris>;
 }
 function Notice({ children, kind = 'success' }: { children: ReactNode; kind?: 'success' | 'error' | 'info' }) {
   return <div className={`my-4 flex gap-2 rounded-xl border p-3 text-sm ${kind === 'error' ? 'border-destructive/30 bg-destructive/10 text-destructive' : kind === 'info' ? 'border-sky-300/50 bg-sky-50 text-sky-900 dark:bg-sky-950/30 dark:text-sky-200' : 'border-primary/20 bg-primary/10 text-primary'}`}><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />{children}</div>;
@@ -335,7 +344,24 @@ function MerchantGate({ children }: { children: ReactNode }) {
         onError: () => setError('We could not save your seller profile. Please try again.'),
       });
     }
-    return <main className="min-h-[100dvh] bg-background px-4 py-10"><div className="mx-auto max-w-xl"><div className="mb-8"><Logo /><p className="mt-8 text-[10px] font-bold uppercase tracking-[.2em] text-primary">One quick setup</p><h1 className="display-font mt-2 text-3xl font-bold">Set up your seller profile.</h1><p className="mt-2 text-sm text-muted-foreground">Add the details buyers will see on your protected payment links.</p></div><form onSubmit={submit} className="space-y-4 rounded-3xl border border-border bg-card p-6 sm:p-8"><label className="block text-xs font-semibold">Full name<input name="fullName" required minLength={2} defaultValue={[user?.firstName, user?.lastName].filter(Boolean).join(' ')} className={`${field} mt-1.5`} /></label><label className="block text-xs font-semibold">Store name<input name="storeName" required minLength={2} className={`${field} mt-1.5`} placeholder="Your shop or studio" /></label><label className="block text-xs font-semibold">Phone number<input name="phoneNumber" required type="tel" minLength={5} className={`${field} mt-1.5`} placeholder="+965" /></label>{error && <Notice kind="error">{error}</Notice>}<Primary type="submit" disabled={save.isPending} className="w-full">{save.isPending ? 'Saving profile…' : 'Continue to GARANT'}<ArrowRight className="h-4 w-4" /></Primary><p className="text-center text-[10px] text-muted-foreground">Your account email is verified by GARANT sign-in.</p></form></div></main>;
+    return <main className="min-h-[100dvh] bg-background px-4 py-10"><div className="mx-auto max-w-xl">
+      <div className="mb-5"><Logo /></div>
+      <Velaris bg="#080D24" colors={GARANT_VELARIS_COLORS} speed={0.48} grain={0.1} height="auto" className="mb-6 rounded-3xl">
+        <div className="px-5 py-5 sm:px-7 sm:py-6">
+          <p className="text-[10px] font-bold uppercase tracking-[.2em] text-[#C4B5FD]">One quick setup</p>
+          <h1 className="display-font mt-2 text-3xl font-bold text-[#F3F4FF]">Set up your seller profile.</h1>
+          <p className="mt-2 text-sm text-white/70">Add the details buyers will see on your protected payment links.</p>
+        </div>
+      </Velaris>
+      <form onSubmit={submit} className="space-y-4 rounded-3xl border border-border bg-card p-6 sm:p-8">
+        <label className="block text-xs font-semibold">Full name<input name="fullName" required minLength={2} defaultValue={[user?.firstName, user?.lastName].filter(Boolean).join(' ')} className={`${field} mt-1.5`} /></label>
+        <label className="block text-xs font-semibold">Store name<input name="storeName" required minLength={2} className={`${field} mt-1.5`} placeholder="Your shop or studio" /></label>
+        <label className="block text-xs font-semibold">Phone number<input name="phoneNumber" required type="tel" minLength={5} className={`${field} mt-1.5`} placeholder="+965" /></label>
+        {error && <Notice kind="error">{error}</Notice>}
+        <Primary type="submit" disabled={save.isPending} className="w-full">{save.isPending ? 'Saving profile…' : 'Continue to GARANT'}<ArrowRight className="h-4 w-4" /></Primary>
+        <p className="text-center text-[10px] text-muted-foreground">Your account email is verified by GARANT sign-in.</p>
+      </form>
+    </div></main>;
   }
   return <>{children}</>;
 }
@@ -525,7 +551,17 @@ function BuyerOrder() {
     {paid && <div className="mb-4 flex items-start gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4"><ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" /><div><p className="text-sm font-bold">Your Payment Is Protected by Garant</p><p className="mt-1 text-xs text-muted-foreground">Funds are held until you confirm your order arrived.</p></div></div>}
     {o.status === 'DELIVERED' && <Notice kind="info">If you do not confirm within 48 hours after delivery, the simulated payment releases automatically.</Notice>}
     {o.status === 'DISPUTED' && <Notice kind="info">Payment is frozen while the dispute is reviewed.</Notice>}
-    <section className="rounded-3xl border border-border bg-card p-5 sm:p-7"><div className="flex gap-4">{o.imageUrl && <img src={o.imageUrl} alt={o.productName} className="h-20 w-20 rounded-2xl object-cover" />}<div><p className="text-xs font-semibold text-primary">{o.storeName}</p><h1 className="display-font mt-1 text-2xl font-bold">{o.productName}</h1><p className="mt-1 text-sm text-muted-foreground">{o.description}</p></div></div>
+    <section className="rounded-3xl border border-border bg-card p-5 sm:p-7">
+      <Velaris bg="#080D24" colors={GARANT_VELARIS_COLORS} speed={0.48} grain={0.1} height="auto" className="mb-7 rounded-2xl">
+        <div className="flex gap-4 p-4 sm:p-5">
+          {o.imageUrl && <img src={o.imageUrl} alt={o.productName} className="h-20 w-20 shrink-0 rounded-2xl object-cover" />}
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-[#C4B5FD]">{o.storeName}</p>
+            <h1 className="display-font mt-1 text-2xl font-bold text-[#F3F4FF]">{o.productName}</h1>
+            <p className="mt-1 text-sm text-white/70">{o.description}</p>
+          </div>
+        </div>
+      </Velaris>
       {!paid && mode === 'checkout' && <form onSubmit={checkout} className="mt-7 border-t border-border pt-6"><h2 className="text-sm font-bold">Your delivery details</h2><p className="mt-1 text-xs text-muted-foreground">No account needed. Just tell us where to send it.</p><label className="mt-5 block text-xs font-semibold">Full name<input name="name" required className={`${field} mt-1.5`} placeholder="Your name" /></label><label className="mt-4 block text-xs font-semibold">Kuwait phone number<input name="phone" required type="tel" className={`${field} mt-1.5`} placeholder="+965 XXXX XXXX" /></label><label className="mt-4 block text-xs font-semibold">Delivery address<textarea name="address" required rows={2} className={`${field} mt-1.5`} placeholder="Area, block, street, building…" /></label><p className="mb-2 mt-5 text-xs font-semibold">Choose payment</p><div className="grid grid-cols-2 gap-2"><label className="flex cursor-pointer items-center gap-2 rounded-xl border border-border p-3 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary/5"><input type="radio" name="payment" value="KNET" defaultChecked />KNET</label><label className="flex cursor-pointer items-center gap-2 rounded-xl border border-border p-3 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary/5"><input type="radio" name="payment" value="CARD" />Card</label></div><Notice kind="info">Demo only: payment is simulated. No real money will be charged.</Notice>{error && <Notice kind="error">{error}</Notice>}<Primary type="submit" disabled={pay.isPending} className="mt-3 w-full"><LockKeyhole className="h-4 w-4" />{pay.isPending ? 'Processing demo…' : `Pay ${fmt(o.totalAmount)}`}</Primary></form>}
       {mode === 'otp' && <form onSubmit={otp} className="mt-7 border-t border-border pt-6"><h2 className="text-sm font-bold">Verify delivery confirmation</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">This MVP simulates phone verification. No SMS is sent; use the demo code <b>123456</b>.</p><label className="mt-5 block text-xs font-semibold">One-time code<input name="code" required minLength={4} maxLength={8} inputMode="numeric" className={`${field} mt-1.5 text-center font-mono text-lg tracking-[.3em]`} placeholder="123456" /></label>{error && <Notice kind="error">{error}</Notice>}<Primary type="submit" disabled={verify.isPending || confirm.isPending} className="mt-4 w-full">{verify.isPending || confirm.isPending ? 'Verifying…' : 'Verify and continue'}</Primary></form>}
       {mode === 'done' && message && <Notice>{message}</Notice>}

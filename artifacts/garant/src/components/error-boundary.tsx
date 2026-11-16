@@ -4,6 +4,9 @@ import {
   type ErrorInfo,
   type ReactNode,
 } from 'react';
+import { Velaris } from '@/components/ui/velaris';
+
+const GARANT_VELARIS_COLORS = ['#A855F7', '#7C3AED', '#101832', '#080D24'];
 
 export interface ErrorFallbackProps {
   error: Error;
@@ -37,12 +40,21 @@ function toError(value: unknown): Error {
 
 function DefaultFallback({ error, resetError }: ErrorFallbackProps) {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 p-6">
+    <div className="flex min-h-screen w-full items-center justify-center bg-background p-6">
       <div className="max-w-lg w-full text-center">
-        <h1 className="text-xl font-semibold text-gray-900">
-          Something went wrong
-        </h1>
-        <p className="mt-2 text-sm text-gray-600">
+        <Velaris
+          bg="#080D24"
+          colors={GARANT_VELARIS_COLORS}
+          speed={0.48}
+          grain={0.1}
+          height="auto"
+          className="rounded-2xl"
+        >
+          <h1 className="px-5 py-5 text-xl font-semibold text-[#F3F4FF]">
+            Something went wrong
+          </h1>
+        </Velaris>
+        <p className="mt-2 text-sm text-muted-foreground">
           This part of the app hit an error. The rest of the app is still
           running.
         </p>
