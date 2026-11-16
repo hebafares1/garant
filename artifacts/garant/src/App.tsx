@@ -20,8 +20,8 @@ import type { Order, Dispute } from '@workspace/api-client-react';
 import { DisputeInputReason, DisputeDecisionInputDecision } from '@workspace/api-client-react';
 import {
   Activity, ArrowRight, Bell, Check, CheckCircle2, Clipboard, Clock3, ExternalLink, Eye, FileImage,
-  Globe2, Headphones, Home as HomeIcon, ImagePlus, Link2, LockKeyhole, LogOut, Menu, Moon, Package,
-  Plus, Send, Settings, Shield, ShieldCheck, Sun, Truck, WalletCards, X, AlertCircle,
+  Globe2, Headphones, Home as HomeIcon, ImagePlus, Link2, LockKeyhole, LogOut, Menu, Package,
+  Plus, Send, Settings, Shield, ShieldCheck, Truck, WalletCards, X, AlertCircle,
 } from 'lucide-react';
 import { Route, Switch, Router as WouterRouter, Redirect, Link, useLocation, useParams } from 'wouter';
 import { Velaris } from '@/components/ui/velaris';
@@ -34,8 +34,8 @@ function stripBase(path: string) { return basePath && path.startsWith(basePath) 
 const GARANT_VELARIS_COLORS = ['#A855F7', '#7C3AED', '#101832', '#080D24'];
 
 type Lang = 'en' | 'ar';
-const LocaleContext = createContext<{ lang: Lang; setLang: (v: Lang) => void; dark: boolean; setDark: (v: boolean) => void }>({
-  lang: 'en', setLang: () => undefined, dark: true, setDark: () => undefined,
+const LocaleContext = createContext<{ lang: Lang; setLang: (v: Lang) => void; dark: boolean }>({
+  lang: 'en', setLang: () => undefined, dark: true,
 });
 const useLocale = () => useContext(LocaleContext);
 const words: Record<string, [string, string]> = {
@@ -45,7 +45,7 @@ const words: Record<string, [string, string]> = {
 };
 function t(key: string, lang: Lang) { return words[key]?.[lang === 'ar' ? 1 : 0] ?? key; }
 const arabicCopy: Record<string, string> = {
-  'Switch language': 'تغيير اللغة', 'Toggle theme': 'تغيير المظهر', 'Sign in': 'تسجيل الدخول', 'Sign out': 'تسجيل الخروج',
+  'Switch language': 'تغيير اللغة', 'Sign in': 'تسجيل الدخول', 'Sign out': 'تسجيل الخروج',
   'Create account': 'إنشاء حساب', 'Start selling with GARANT': 'ابدأ البيع مع GARANT', 'Merchant sign in': 'دخول التاجر',
   'Built for Kuwait’s social sellers': 'مصمم للبائعين عبر التواصل الاجتماعي في الكويت', "Built for Kuwait's social sellers": 'مصمم للبائعين عبر التواصل الاجتماعي في الكويت',
   'Share one trusted payment link on Instagram or WhatsApp. Buyers pay and follow delivery without creating an account.': 'أرسل رابط دفع موثوقاً عبر إنستغرام أو واتساب. يدفع المشترون ويتابعون التوصيل دون إنشاء حساب.',
@@ -256,10 +256,6 @@ function LanguageToggle() {
   const { lang, setLang } = useLocale();
   return <button onClick={() => setLang(lang === 'en' ? 'ar' : 'en')} className="rounded-xl border border-border px-2.5 py-2 text-xs font-semibold hover:bg-muted" aria-label="Switch language"><Globe2 className="mr-1 inline h-3.5 w-3.5" />{lang === 'en' ? 'عربي' : 'EN'}</button>;
 }
-function ThemeToggle() {
-  const { dark, setDark } = useLocale();
-  return <button onClick={() => setDark(!dark)} className="rounded-xl border border-border p-2 hover:bg-muted" aria-label="Toggle theme">{dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}</button>;
-}
 const fmt = (n: number) => `${Number(n || 0).toFixed(3)} KWD`;
 const date = (d?: string | null) => d ? new Intl.DateTimeFormat(document.documentElement.lang === 'ar' ? 'ar-KW' : 'en-KW', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(d)) : '—';
 const field = 'w-full rounded-xl border border-border bg-background px-3.5 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15';
@@ -313,7 +309,7 @@ function Layout({ children }: { children: ReactNode }) {
     <div className={`${lang === 'ar' ? 'md:mr-[250px]' : 'md:ml-[250px]'}`}>
       <header className="sticky top-0 z-30 flex h-[72px] items-center justify-between border-b border-border/80 bg-background/90 px-4 backdrop-blur-md sm:px-7">
         <div className="flex items-center gap-3"><button onClick={() => setMobile(true)} className="rounded-lg p-2 hover:bg-muted md:hidden" aria-label="Open navigation"><Menu className="h-5 w-5" /></button><div className="hidden text-xs text-muted-foreground sm:block">Merchant workspace <span className="mx-2">/</span><span className="text-foreground">{nav.find(n => n.href === path)?.name || 'GARANT'}</span></div><div className="sm:hidden"><Logo /></div></div>
-        <div className="flex items-center gap-2"><button className="rounded-xl p-2.5 text-muted-foreground hover:bg-muted" onClick={() => setNoticeOpen(!noticeOpen)} aria-label="Notifications"><Bell className="h-[18px] w-[18px]" /><span className="absolute ml-3 mt-[-20px] h-2 w-2 rounded-full border-2 border-background bg-primary" /></button><LanguageToggle /><ThemeToggle /><div className="hidden h-8 w-8 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground sm:flex">{user?.firstName?.slice(0, 1) || 'M'}</div></div>
+        <div className="flex items-center gap-2"><button className="rounded-xl p-2.5 text-muted-foreground hover:bg-muted" onClick={() => setNoticeOpen(!noticeOpen)} aria-label="Notifications"><Bell className="h-[18px] w-[18px]" /><span className="absolute ml-3 mt-[-20px] h-2 w-2 rounded-full border-2 border-background bg-primary" /></button><LanguageToggle /><div className="hidden h-8 w-8 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground sm:flex">{user?.firstName?.slice(0, 1) || 'M'}</div></div>
         {noticeOpen && <div className="absolute right-5 top-[62px] z-50 w-[min(340px,calc(100vw-32px))] rounded-2xl border border-border bg-card p-4 shadow-xl"><div className="flex items-center justify-between"><strong className="text-sm">Notifications</strong><button onClick={() => setNoticeOpen(false)}><X className="h-4 w-4" /></button></div><p className="mt-3 rounded-xl bg-muted p-3 text-xs leading-relaxed">You're all caught up. New order and dispute updates will appear here.</p><span className="mt-2 block text-[10px] text-muted-foreground">Demo notifications</span></div>}
       </header>
       <main className="mx-auto max-w-[1440px] px-4 py-7 sm:px-7 lg:px-10">{children}</main>
@@ -368,7 +364,7 @@ function MerchantGate({ children }: { children: ReactNode }) {
 
 function Home() {
   const { lang } = useLocale();
-  return <main className="min-h-[100dvh] overflow-hidden bg-background"><header className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-5 sm:px-5 sm:py-6"><Logo /><div className="flex min-w-0 items-center gap-1 sm:gap-2"><LanguageToggle /><ThemeToggle /><Link href="/sign-in" className={`${button} mobile-header-link text-muted-foreground`}>Sign in</Link><Link href="/sign-up" className={`${button} mobile-header-link bg-primary text-primary-foreground`}>Create account <ArrowRight className="h-4 w-4" /></Link></div></header>
+  return <main className="min-h-[100dvh] overflow-hidden bg-background"><header className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-5 sm:px-5 sm:py-6"><Logo /><div className="flex min-w-0 items-center gap-1 sm:gap-2"><LanguageToggle /><Link href="/sign-in" className={`${button} mobile-header-link text-muted-foreground`}>Sign in</Link><Link href="/sign-up" className={`${button} mobile-header-link bg-primary text-primary-foreground`}>Create account <ArrowRight className="h-4 w-4" /></Link></div></header>
     <Velaris className="mx-auto max-w-7xl" height="auto" bg="#080D24" colors={GARANT_VELARIS_COLORS} speed={0.75} grain={0.14}>
     <section className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 pb-20 pt-12 md:grid-cols-[1.02fr_.98fr] md:pb-28 md:pt-20">
       <div className="rise relative z-10"><div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary"><ShieldCheck className="h-4 w-4" /> Built for Kuwait's social sellers</div><h1 className="display-font max-w-[680px] text-[48px] font-extrabold leading-[1.05] tracking-[-.045em] sm:text-[68px]">{t('welcome', lang)}</h1><p className="mt-6 max-w-lg text-base leading-7 text-muted-foreground sm:text-lg">Share one trusted payment link on Instagram or WhatsApp. Buyers pay and follow delivery without creating an account.</p><div className="mt-8 flex flex-wrap gap-3"><Link href="/sign-up" className={`${button} bg-primary px-5 py-3 text-primary-foreground`}>Start selling with GARANT <ArrowRight className="h-4 w-4" /></Link><Link href="/sign-in" className={`${button} border border-border bg-card px-5 py-3`}>Merchant sign in</Link></div><div className="mt-7 flex items-center gap-3 text-xs text-muted-foreground"><div className="flex -space-x-2"><span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-[#d6b2a0] text-[9px] font-bold text-[#3b2823]">S</span><span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-[#ddc981] text-[9px] font-bold text-[#453c20]">A</span><span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-[#92b8a0] text-[9px] font-bold text-[#1f3829]">M</span></div><span>For independent shops, studios & sellers</span></div></div>
@@ -576,10 +572,10 @@ function BuyerOrder() {
     <p className="mt-4 text-center text-[10px] text-muted-foreground">GARANT buyer protection · No account required · Payment simulation only</p>
   </div><aside className="h-fit rounded-3xl border border-border bg-card p-5 sm:p-6"><h2 className="text-sm font-bold">Order summary</h2><div className="mt-5 space-y-3 text-sm"><div className="flex justify-between gap-4"><span className="text-muted-foreground">Item</span><span className="text-right">{o.productName}</span></div><div className="flex justify-between"><span className="text-muted-foreground">Item price</span><Money>{fmt(o.productPrice)}</Money></div><div className="flex justify-between"><span className="text-muted-foreground">Delivery</span><Money>{fmt(o.deliveryFee)}</Money></div><div className="border-t border-border pt-3"><div className="flex justify-between font-bold"><span>Total</span><Money>{fmt(o.totalAmount)}</Money></div></div></div><div className="mt-6 rounded-2xl bg-primary/5 p-4"><div className="flex gap-3"><ShieldCheck className="h-5 w-5 shrink-0 text-primary" /><div><p className="text-xs font-bold">Protected checkout</p><p className="mt-1 text-[11px] leading-5 text-muted-foreground">Funds are held until you confirm your order arrived.</p></div></div></div><p className="mt-5 text-[11px] leading-5 text-muted-foreground">Expected delivery<br /><b className="text-foreground">{date(o.expectedDeliveryDate)}</b></p><div className="mt-4 border-t border-border pt-4 text-[11px] text-muted-foreground">Sold by <b className="text-foreground">{o.storeName}</b></div></aside></div></BuyerFrame>;
 }
-function BuyerFrame({ children }: { children: ReactNode }) { return <main className="min-h-[100dvh] bg-background px-4 py-5 sm:px-6 sm:py-8"><div className="mx-auto mb-7 flex max-w-5xl items-center justify-between"><Logo /><div className="flex items-center gap-3"><LanguageToggle /><ThemeToggle /><span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-muted-foreground"><LockKeyhole className="h-3.5 w-3.5 text-primary" />GARANT protected</span></div></div>{children}<div className="mt-10 text-center text-[10px] text-muted-foreground">Payments are simulated for this MVP. GARANT does not move real money.</div></main>; }
+function BuyerFrame({ children }: { children: ReactNode }) { return <main className="min-h-[100dvh] bg-background px-4 py-5 sm:px-6 sm:py-8"><div className="mx-auto mb-7 flex max-w-5xl items-center justify-between"><Logo /><div className="flex items-center gap-3"><LanguageToggle /><span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-muted-foreground"><LockKeyhole className="h-3.5 w-3.5 text-primary" />GARANT protected</span></div></div>{children}<div className="mt-10 text-center text-[10px] text-muted-foreground">Payments are simulated for this MVP. GARANT does not move real money.</div></main>; }
 
-function SignInPage() { return <div className="grain flex min-h-[100dvh] items-center justify-center bg-background px-4 py-8"><div className="absolute left-6 top-6"><Logo /></div><div className="absolute right-6 top-6 flex gap-2"><LanguageToggle /><ThemeToggle /></div><SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} /></div>; }
-function SignUpPage() { return <div className="grain flex min-h-[100dvh] items-center justify-center bg-background px-4 py-8"><div className="absolute left-6 top-6"><Logo /></div><div className="absolute right-6 top-6 flex gap-2"><LanguageToggle /><ThemeToggle /></div><SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} /></div>; }
+function SignInPage() { return <div className="grain flex min-h-[100dvh] items-center justify-center bg-background px-4 py-8"><div className="absolute left-6 top-6"><Logo /></div><div className="absolute right-6 top-6"><LanguageToggle /></div><SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} /></div>; }
+function SignUpPage() { return <div className="grain flex min-h-[100dvh] items-center justify-center bg-background px-4 py-8"><div className="absolute left-6 top-6"><Logo /></div><div className="absolute right-6 top-6"><LanguageToggle /></div><SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} /></div>; }
 function HomeRedirect() { return <><Show when="signed-in"><Redirect to="/dashboard" /></Show><Show when="signed-out"><Home /></Show></>; }
 function ClerkCacheInvalidator() {
   const { addListener } = useClerk(); const client = useQueryClient();
@@ -639,8 +635,8 @@ function NeonIconFilters() {
 }
 function App() {
   const [lang, setLang] = useState<Lang>(() => localStorage.getItem('garant-language') === 'ar' ? 'ar' : 'en');
-  const [dark, setDark] = useState(() => localStorage.getItem('garant-theme') !== 'light');
-  useLayoutEffect(() => { document.documentElement.classList.toggle('dark', dark); document.documentElement.style.colorScheme = dark ? 'dark' : 'light'; localStorage.setItem('garant-theme', dark ? 'dark' : 'light'); }, [dark]);
+  const dark = true;
+  useLayoutEffect(() => { document.documentElement.classList.add('dark'); document.documentElement.style.colorScheme = 'dark'; localStorage.removeItem('garant-theme'); }, []);
   useLayoutEffect(() => {
     const direction = lang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.dir = direction;
@@ -652,7 +648,7 @@ function App() {
     observer.observe(document.body, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['placeholder', 'aria-label', 'title', 'alt'] });
     return () => observer.disconnect();
   }, [lang]);
-  return <LocaleContext.Provider value={{ lang, setLang, dark, setDark }}>
+  return <LocaleContext.Provider value={{ lang, setLang, dark }}>
     <NeonIconFilters />
     <TooltipProvider><WouterRouter base={basePath}><ClerkApp /></WouterRouter><Toaster /></TooltipProvider>
   </LocaleContext.Provider>;
