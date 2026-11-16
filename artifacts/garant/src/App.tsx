@@ -610,6 +610,33 @@ function ClerkApp() {
   </ClerkProvider>;
 }
 function HealthMonitor() { useHealthCheck({ query: { queryKey: getHealthCheckQueryKey(), staleTime: 60_000 } }); return null; }
+function NeonIconFilters() {
+  return <svg aria-hidden="true" focusable="false" className="pointer-events-none absolute h-0 w-0">
+    <defs>
+      <filter id="garant-neon-icon" x="-100%" y="-100%" width="300%" height="300%" colorInterpolationFilters="sRGB">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="2.8" result="outerBlur" />
+        <feFlood floodColor="#7C3AED" floodOpacity="0.9" result="outerColor" />
+        <feComposite in="outerColor" in2="outerBlur" operator="in" result="outerNeon" />
+        <feMorphology in="SourceAlpha" operator="dilate" radius="0.35" result="tubeMask" />
+        <feFlood floodColor="#A855F7" result="tubeColor" />
+        <feComposite in="tubeColor" in2="tubeMask" operator="in" result="neonTube" />
+        <feGaussianBlur in="SourceAlpha" stdDeviation="1" result="innerBlur" />
+        <feFlood floodColor="#D946EF" floodOpacity="1" result="innerColor" />
+        <feComposite in="innerColor" in2="innerBlur" operator="in" result="innerNeon" />
+        <feMorphology in="SourceAlpha" operator="erode" radius="0.35" result="coreMask" />
+        <feFlood floodColor="#FFFFFF" result="coreColor" />
+        <feComposite in="coreColor" in2="coreMask" operator="in" result="hotCore" />
+        <feMerge>
+          <feMergeNode in="outerNeon" />
+          <feMergeNode in="neonTube" />
+          <feMergeNode in="innerNeon" />
+          <feMergeNode in="SourceGraphic" />
+          <feMergeNode in="hotCore" />
+        </feMerge>
+      </filter>
+    </defs>
+  </svg>;
+}
 function App() {
   const [lang, setLang] = useState<Lang>(() => localStorage.getItem('garant-language') === 'ar' ? 'ar' : 'en');
   const [dark, setDark] = useState(() => localStorage.getItem('garant-theme') !== 'light');
@@ -625,6 +652,9 @@ function App() {
     observer.observe(document.body, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['placeholder', 'aria-label', 'title', 'alt'] });
     return () => observer.disconnect();
   }, [lang]);
-  return <LocaleContext.Provider value={{ lang, setLang, dark, setDark }}><TooltipProvider><WouterRouter base={basePath}><ClerkApp /></WouterRouter><Toaster /></TooltipProvider></LocaleContext.Provider>;
+  return <LocaleContext.Provider value={{ lang, setLang, dark, setDark }}>
+    <NeonIconFilters />
+    <TooltipProvider><WouterRouter base={basePath}><ClerkApp /></WouterRouter><Toaster /></TooltipProvider>
+  </LocaleContext.Provider>;
 }
 export default App;
