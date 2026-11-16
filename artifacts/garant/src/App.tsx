@@ -256,6 +256,53 @@ const fmt = (n: number) => `${Number(n || 0).toFixed(3)} KWD`;
 const date = (d?: string | null) => d ? new Intl.DateTimeFormat(document.documentElement.lang === 'ar' ? 'ar-KW' : 'en-KW', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(d)) : '—';
 const field = 'w-full rounded-xl border border-border bg-background px-3.5 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15';
 const button = 'garant-button inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50';
+function TypewriterLastWord({ text }: { text: string }) {
+  const parts = text.trim().split(/\s+/);
+  const lastWord = parts.pop() || '';
+  const prefix = parts.join(' ');
+  const [visibleWord, setVisibleWord] = useState(lastWord);
+
+  useEffect(() => {
+    setVisibleWord(lastWord);
+    if (!lastWord || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    let index = lastWord.length;
+    let phase: 'hold' | 'erase' | 'type' = 'hold';
+    let timer = 0;
+    const schedule = (delay: number) => { timer = window.setTimeout(tick, delay); };
+    const tick = () => {
+      if (phase === 'hold') {
+        phase = 'erase';
+        schedule(1500);
+        return;
+      }
+      if (phase === 'erase') {
+        index = Math.max(0, index - 1);
+        setVisibleWord(lastWord.slice(0, index));
+        if (index === 0) {
+          phase = 'type';
+          schedule(220);
+        } else {
+          schedule(48);
+        }
+        return;
+      }
+      index = Math.min(lastWord.length, index + 1);
+      setVisibleWord(lastWord.slice(0, index));
+      if (index === lastWord.length) {
+        phase = 'hold';
+        schedule(1900);
+      } else {
+        schedule(82);
+      }
+    };
+
+    schedule(1700);
+    return () => window.clearTimeout(timer);
+  }, [lastWord]);
+
+  return <span aria-hidden="true">{prefix && `${prefix} `}<span className="inline-grid align-baseline whitespace-nowrap"><span className="invisible col-start-1 row-start-1 select-none">{lastWord}</span><span className="col-start-1 row-start-1 bg-gradient-to-r from-[#F5D0FE] via-[#C4B5FD] to-[#E879F9] bg-clip-text text-transparent">{visibleWord}<span className="typewriter-caret ml-[.06em] inline-block h-[.86em] w-[2px] translate-y-[.08em] bg-[#E879F9]" /></span></span></span>;
+}
 function Primary({ children, ...props }: ButtonHTMLAttributes<HTMLButtonElement>) { return <button className={`${button} bg-primary text-primary-foreground hover:brightness-95`} {...props}>{children}</button>; }
 function Soft({ children, ...props }: ButtonHTMLAttributes<HTMLButtonElement>) { return <button className={`${button} border border-border bg-card text-foreground hover:bg-muted`} {...props}>{children}</button>; }
 function PageTitle({ eyebrow, title, sub, action }: { eyebrow?: string; title: string; sub?: string; action?: ReactNode }) {
@@ -263,7 +310,7 @@ function PageTitle({ eyebrow, title, sub, action }: { eyebrow?: string; title: s
     <div className="flex min-h-[112px] flex-wrap items-end justify-between gap-4 px-5 py-5 sm:px-7 sm:py-6">
       <div className="text-[#F3F4FF]">
         {eyebrow && <p className="mb-2 text-[10px] font-bold uppercase tracking-[.2em] text-[#C4B5FD]">{eyebrow}</p>}
-        <h1 className="display-font text-3xl font-bold tracking-tight text-[#F3F4FF] sm:text-[38px]">{title}</h1>
+        <h1 aria-label={title} className="display-font text-3xl font-bold tracking-tight text-[#F3F4FF] sm:text-[38px]"><TypewriterLastWord key={title} text={title} /></h1>
         {sub && <p className="mt-2 max-w-2xl text-sm text-white/70">{sub}</p>}
       </div>
       {action}
@@ -341,7 +388,7 @@ function MerchantGate({ children }: { children: ReactNode }) {
       <Velaris bg="#080D24" colors={GARANT_VELARIS_COLORS} speed={0.48} grain={0.1} height="auto" className="mb-6 rounded-3xl">
         <div className="px-5 py-5 sm:px-7 sm:py-6">
           <p className="text-[10px] font-bold uppercase tracking-[.2em] text-[#C4B5FD]">One quick setup</p>
-          <h1 className="display-font mt-2 text-3xl font-bold text-[#F3F4FF]">Set up your seller profile.</h1>
+          <h1 aria-label="Set up your seller profile." className="display-font mt-2 text-3xl font-bold text-[#F3F4FF]"><TypewriterLastWord text="Set up your seller profile." /></h1>
           <p className="mt-2 text-sm text-white/70">Add the details buyers will see on your protected payment links.</p>
         </div>
       </Velaris>
@@ -363,7 +410,7 @@ function Home() {
   return <main className="min-h-[100dvh] overflow-hidden bg-background"><header className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-5 sm:px-5 sm:py-6"><Logo /><div className="flex min-w-0 items-center gap-1 sm:gap-2"><Link href="/sign-in" className={`${button} mobile-header-link text-muted-foreground`}>Sign in</Link><Link href="/sign-up" className={`${button} mobile-header-link bg-primary text-primary-foreground`}>Create account <ArrowRight className="h-4 w-4" /></Link></div></header>
     <Velaris className="mx-auto max-w-7xl" height="auto" bg="#080D24" colors={GARANT_VELARIS_COLORS} speed={0.75} grain={0.14}>
     <section className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 pb-20 pt-12 md:grid-cols-[1.02fr_.98fr] md:pb-28 md:pt-20">
-      <div className="rise relative z-10"><div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary"><ShieldCheck className="h-4 w-4" /> Built for Kuwait's social sellers</div><h1 className="display-font max-w-[680px] text-[48px] font-extrabold leading-[1.05] tracking-[-.045em] sm:text-[68px]">{t('welcome', lang)}</h1><p className="mt-6 max-w-lg text-base leading-7 text-muted-foreground sm:text-lg">Share one trusted payment link on Instagram or WhatsApp. Buyers pay and follow delivery without creating an account.</p><div className="mt-8 flex flex-wrap gap-3"><Link href="/sign-up" className={`${button} bg-primary px-5 py-3 text-primary-foreground`}>Start selling with GARANT <ArrowRight className="h-4 w-4" /></Link><Link href="/sign-in" className={`${button} border border-border bg-card px-5 py-3`}>Merchant sign in</Link></div><div className="mt-7 flex items-center gap-3 text-xs text-muted-foreground"><div className="flex -space-x-2"><span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-[#d6b2a0] text-[9px] font-bold text-[#3b2823]">S</span><span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-[#ddc981] text-[9px] font-bold text-[#453c20]">A</span><span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-[#92b8a0] text-[9px] font-bold text-[#1f3829]">M</span></div><span>For independent shops, studios & sellers</span></div></div>
+      <div className="rise relative z-10"><div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary"><ShieldCheck className="h-4 w-4" /> Built for Kuwait's social sellers</div><h1 aria-label={t('welcome', lang)} className="display-font max-w-[680px] text-[48px] font-extrabold leading-[1.05] tracking-[-.045em] sm:text-[68px]"><TypewriterLastWord text={t('welcome', lang)} /></h1><p className="mt-6 max-w-lg text-base leading-7 text-muted-foreground sm:text-lg">Share one trusted payment link on Instagram or WhatsApp. Buyers pay and follow delivery without creating an account.</p><div className="mt-8 flex flex-wrap gap-3"><Link href="/sign-up" className={`${button} bg-primary px-5 py-3 text-primary-foreground`}>Start selling with GARANT <ArrowRight className="h-4 w-4" /></Link><Link href="/sign-in" className={`${button} border border-border bg-card px-5 py-3`}>Merchant sign in</Link></div><div className="mt-7 flex items-center gap-3 text-xs text-muted-foreground"><div className="flex -space-x-2"><span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-[#d6b2a0] text-[9px] font-bold text-[#3b2823]">S</span><span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-[#ddc981] text-[9px] font-bold text-[#453c20]">A</span><span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-[#92b8a0] text-[9px] font-bold text-[#1f3829]">M</span></div><span>For independent shops, studios & sellers</span></div></div>
       <div className="relative mx-auto w-full max-w-[550px] rise"><div className="absolute -right-8 -top-7 h-44 w-44 rounded-full bg-accent/60 blur-3xl" /><div className="relative overflow-hidden rounded-[30px] border border-border bg-[#e9e5d9] p-5 shadow-[0_30px_90px_-40px_rgba(25,41,37,.35)] sm:p-8"><div className="absolute right-5 top-5 rotate-6 rounded-xl bg-[#193c31] px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-[#e5f1d8]">Protected sale</div><div className="flex h-[220px] items-center justify-center rounded-2xl bg-[#d4d0c4] sm:h-[280px]"><div className="relative flex h-[185px] w-[230px] rotate-[-5deg] items-center justify-center rounded-[24px] border border-white/70 bg-gradient-to-br from-[#c7b59b] via-[#ebe1cf] to-[#b4aa98] shadow-xl sm:h-[225px] sm:w-[300px]"><div className="absolute left-[-10px] top-8 h-12 w-12 rounded-full bg-[#f1e9d8]/80" /><div className="absolute right-[-10px] top-14 h-16 w-16 rounded-full bg-[#f1e9d8]/70" /><div className="absolute bottom-6 left-10 h-20 w-20 rounded-full bg-[#aebaa7]/90" /><div className="h-24 w-24 rotate-12 rounded-[26px] border border-white/80 bg-[#f5f0e7]/80 shadow-md sm:h-32 sm:w-32"><div className="mx-auto mt-6 h-12 w-12 rounded-full bg-[#e2d8c7] sm:mt-8 sm:h-16 sm:w-16" /></div><span className="absolute bottom-3 right-4 text-[9px] font-bold tracking-[.15em] text-[#596057]">STUDIO OBJECT Nº 04</span></div></div><div className="flex items-center justify-between px-1 pt-5"><div><p className="text-xs font-bold uppercase tracking-[.15em] text-[#5c655b]">Order protection</p><h3 className="display-font mt-1 text-xl font-bold text-[#192923]">The trusted middle</h3></div><div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground"><ShieldCheck className="h-5 w-5" /></div></div></div><div className="absolute -bottom-6 -left-6 rounded-2xl border border-border bg-card p-4 shadow-lg sm:-left-10"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary"><LockKeyhole className="h-4 w-4" /></span><div><p className="text-xs font-bold">Payment held securely</p><p className="mt-1 text-[10px] text-muted-foreground">Until your buyer receives it</p></div><Check className="ml-4 h-4 w-4 text-primary" /></div></div></div>
     </section>
     </Velaris>
@@ -403,7 +450,7 @@ function SellerProtectionHero() {
     <section className="relative h-full overflow-hidden rounded-2xl p-6 text-[#F3F4FF]">
       <div aria-hidden="true" className="absolute -right-10 -top-12 h-44 w-44 rounded-full border border-white/10" />
       <p className="text-[10px] font-bold uppercase tracking-[.18em] text-[#A855F7]">A little more peace of mind</p>
-      <h3 className="display-font mt-4 max-w-[250px] text-2xl font-bold">Every link includes buyer protection.</h3>
+      <h3 aria-label="Every link includes buyer protection." className="display-font mt-4 max-w-[250px] text-2xl font-bold"><TypewriterLastWord text="Every link includes buyer protection." /></h3>
       <p className="mt-3 max-w-xs text-xs leading-5 text-white/75">No storefront needed. Just share the link wherever your customers find you.</p>
       <Link href="/create-link" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#A855F7] px-4 py-2.5 text-xs font-bold text-[#080D24]">Create a link <ArrowRight className="h-3.5 w-3.5" /></Link>
       <ShieldCheck aria-hidden="true" className="absolute bottom-5 right-5 h-9 w-9 text-white/30" />

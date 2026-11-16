@@ -575,3 +575,18 @@ input[type="reset"]:not(:disabled):active {
     transition: none;
   }
 }
+
+.typewriter-caret {
+  animation: typewriter-caret 900ms steps(1, end) infinite;
+}
+
+@keyframes typewriter-caret {
+  50% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typewriter-caret {
+    display: none;
+    animation: none;
+  }
+}
