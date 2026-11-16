@@ -489,8 +489,23 @@ html[dir='rtl'] input[type='number'], html[dir='rtl'] input[type='date'], html[d
 /* Crisp neon highlight on interactive buttons; keep it a defined edge, not a glow. */
 button:not(:disabled),
 [role="button"]:not([aria-disabled="true"]),
-a.garant-button {
+a.garant-button,
+input[type="button"]:not(:disabled),
+input[type="submit"]:not(:disabled),
+input[type="reset"]:not(:disabled) {
   cursor: pointer;
+  outline: 1px solid transparent;
+  outline-offset: 0;
+  transition:
+    outline-color 150ms ease,
+    border-color 150ms ease,
+    background-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not(:disabled),
+textarea:not(:disabled),
+select:not(:disabled) {
   outline: 1px solid transparent;
   outline-offset: 0;
   transition:
@@ -503,24 +518,49 @@ a.garant-button {
 @media (hover: hover) and (pointer: fine) {
   button:not(:disabled):hover,
   [role="button"]:not([aria-disabled="true"]):hover,
-  a.garant-button:hover {
+  a.garant-button:hover,
+  input[type="button"]:not(:disabled):hover,
+  input[type="submit"]:not(:disabled):hover,
+  input[type="reset"]:not(:disabled):hover {
     outline-color: #e879f9;
     border-color: #e879f9;
     background-image: linear-gradient(rgb(217 70 239 / 12%), rgb(217 70 239 / 12%));
     box-shadow: inset 0 0 0 1px rgb(244 114 255 / 68%);
   }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not(:disabled):hover,
+  textarea:not(:disabled):hover,
+  select:not(:disabled):hover {
+    outline-color: #e879f9;
+    border-color: #e879f9;
+    box-shadow: inset 0 0 0 1px rgb(244 114 255 / 55%);
+  }
 }
 
 button:not(:disabled):focus-visible,
 [role="button"]:not([aria-disabled="true"]):focus-visible,
-a.garant-button:focus-visible {
+a.garant-button:focus-visible,
+input[type="button"]:not(:disabled):focus-visible,
+input[type="submit"]:not(:disabled):focus-visible,
+input[type="reset"]:not(:disabled):focus-visible {
   outline-color: #e879f9;
+  box-shadow: inset 0 0 0 1px rgb(244 114 255 / 68%);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not(:disabled):focus,
+textarea:not(:disabled):focus,
+select:not(:disabled):focus {
+  outline-color: #e879f9;
+  border-color: #e879f9;
   box-shadow: inset 0 0 0 1px rgb(244 114 255 / 68%);
 }
 
 button:not(:disabled):active,
 [role="button"]:not([aria-disabled="true"]):active,
-a.garant-button:active {
+a.garant-button:active,
+input[type="button"]:not(:disabled):active,
+input[type="submit"]:not(:disabled):active,
+input[type="reset"]:not(:disabled):active {
   border-color: #d946ef;
   background-image: linear-gradient(rgb(217 70 239 / 18%), rgb(217 70 239 / 18%));
 }
@@ -528,7 +568,10 @@ a.garant-button:active {
 @media (prefers-reduced-motion: reduce) {
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
-  a.garant-button {
+  a.garant-button,
+  input:not([type="hidden"]),
+  textarea,
+  select {
     transition: none;
   }
 }
